@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>cylinder experiment</title>
+		<style>
+			body { margin: 0; }
+		</style>
+		<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.js"></script> -->
+	</head>
+	<body>
+		<script type="module">
+			// Our Javascript will go here.
+
+			import * as THREE from 'https://cdn.skypack.dev/three@0.128.0/build/three.module.js';
+			import { OrbitControls } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/controls/OrbitControls.js';
+
+            // Scene, camera, renderer
+
+            const scene = new THREE.Scene();
+			scene.background = new THREE.Color( 0x797979 );
+            const camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 500 );
+			camera.position.z = 30;
+			camera.position.y = 10;
+            const renderer = new THREE.WebGLRenderer( { antialias: true } );
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            document.body.appendChild( renderer.domElement );
+
+			// Orbit controls
+
+			const controls = new OrbitControls( camera, renderer.domElement );
+			controls.update();
+
+			// Lights
+			// Ambient
+
+			// const color = 0x000000;
+			// const intensity = 1;
+			// const light = new THREE.AmbientLight( color, intensity );
+			// scene.add( light );
+
+			// Hemisphere
+
+			// const skyColor = 0xb1e1ff;
+			// const groundColor = 0xb97a20;
+			// const intensity = 1;
+			// const light = new THREE.HemisphereLight( skyColor, groundColor, intensity );
+			// scene.add( light );
+
+			// Directional
+
+			const color = 0xffffff;
+			const intensity = 1;
+			const light = new THREE.DirectionalLight( color, intensity );
+			light.position.set( 0, 10, 0 );
+			// light.target.position.set( -30, 0, 0 );
+			scene.add( light );
+
+            // Cylinder
+
+			const cylProps = { transparent: false,
+							   opacity: 0.5,
+							   alphaTest: 0.2,
+							   color: 0x049ef4,
+							   specular: 0x363030,
+							   shininess: 45,
+							   side: THREE.DoubleSide }
+
+            const geometry = new THREE.CylinderBufferGeometry( 1.6, 1.6, 15, 32, 1, true );
+			// geometry.translate( 0, 5, 5 );
+            const material = new THREE.MeshPhongMaterial( cylProps );
+            const cylinder = new THREE.Mesh( geometry, material );
+			cylinder.rotation.x = Math.PI / 2;
+			// cylinder.rotation.y = Math.PI / 2;
+			cylinder.rotation.z = Math.PI / 2;
+
+			// test to add 2nd cylinder at 45 degree northeast angle to first
+			const testCyl = new THREE.Mesh( geometry, material );
+			testCyl.rotation.x = Math.PI / 2;
+			testCyl.rotation.z = Math.PI / 4;
+			testCyl.position.set( 13, 0 , -5.5 );
+			scene.add( testCyl );	
+
+            scene.add( cylinder );
+
+			function animate() {
+				// controls.update();
+				requestAnimationFrame( animate );
+				// cylinder.rotation.x += 0.01;
+				// cylinder.rotation.y += 0.01;
+				renderer.render( scene, camera );
+			}
+			animate();
+		</script>
+	</body>
+</html>

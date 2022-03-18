@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>cylinder experiment</title>
+		<style>
+			body { margin: 0; }
+		</style>
+	</head>
+	<body>
+		<script src="js/three.js"></script>
+		<script type="module">
+			// Our Javascript will go here.
+
+			import { OrbitControls } from '/js/OrbitControls.js';
+
+            // Scene, camera, renderer
+
+            const scene = new THREE.Scene();
+			scene.background = new THREE.Color( 0x797979 );
+            const camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 500 );
+			camera.position.z = 20;
+			camera.position.y = 10;
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            document.body.appendChild( renderer.domElement );
+
+			// Orbit controls
+
+			const controls = new OrbitControls( camera, renderer.domElement );
+			controls.target.set(0, 5, 0);
+			controls.update();
+
+			// Lights
+			// Ambient
+
+			// const color = 0x000000;
+			// const intensity = 1;
+			// const light = new THREE.AmbientLight( color, intensity );
+			// scene.add( light );
+
+			// Hemisphere
+
+			// const skyColor = 0xb1e1ff;
+			// const groundColor = 0xb97a20;
+			// const intensity = 1;
+			// const light = new THREE.HemisphereLight( skyColor, groundColor, intensity );
+			// scene.add( light );
+
+			// Directional
+			
+
+            // Cylinder
+
+			const cylProps = { transparent: true,
+							   opacity: 0.5,
+							   alphaTest: 0.2,
+							   color: 0x747c81,
+							   side: THREE.DoubleSide }
+
+            const geometry = new THREE.CylinderGeometry( 1.6, 1.6, 10, 32, 1, true );
+            const material = new THREE.MeshPhongMaterial( cylProps );
+            const cylinder = new THREE.Mesh( geometry, material );
+            scene.add( cylinder );
+
+			function animate() {
+				requestAnimationFrame( animate );
+				cylinder.rotation.x += 0.01;
+				cylinder.rotation.y += 0.01;
+				renderer.render( scene, camera );
+			}
+			animate();
+		</script>
+	</body>
+</html>
