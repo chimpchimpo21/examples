@@ -73,6 +73,17 @@
 
                 }
 
+                // handle Android orientation
+
+                function handleOrientation(event) {
+
+                    var z = event.alpha; // In degree in the range (0, 360)
+                    var a = event.absolute; //boolean of whether orientation data is absolute or relative
+
+                    console.log(z, a);
+                    
+                }
+
                 // Controller
 
                 // controller = renderer.xr.getController( 0 );
