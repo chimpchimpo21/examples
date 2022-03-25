@@ -9,6 +9,9 @@
         <pre id="info" style="font-family: monospace; font-size: 14px; white-space: pre; color: #F9203A;">Cylinder in AR</pre>
 
         <script type="module">
+
+            const info = document.getElementById("info");
+
             //THREE.js scripts imports
             
             import * as THREE from 'https://cdn.skypack.dev/three@0.128.0/build/three.module.js';
@@ -16,10 +19,19 @@
 
             var container, camera, scene, renderer;
 
+            // testing offset variable
+
+            var offset;
+
             init();
             animate();
 
             function init() {
+
+                function startup() {
+                    window.addEventListener("touchend", checkOrientation, false);
+                }
+                
 
                 container = document.createElement( 'div' );
                 document.body.appendChild( container );
@@ -46,30 +58,45 @@
                     optionalFeatures: [ 'dom-overlay', 'dom-overlay-for-handheld-ar' ],
                     domOverlay: { root: document.body }
                 }));
-                checkOrientation()
-                // Check for device orientation - TESTING
 
-                function checkOrientation() {
-            
-                    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-                        DeviceOrientationEvent.requestPermission()
-                        .then(permissionState => {
-                             if (permissionState === 'granted') {
-                                window.addEventListener('deviceorientation', handleiOSOrientation, true);
-                            }
-                        })
-                        .catch(console.error);
-                    } else {
-                        window.addEventListener('deviceorientation', handleOrientation, true);
-                    }
-                }
+                // Directional light
+
+                const color = 0xffffff;
+                const intensity = 1;
+                const light = new THREE.DirectionalLight( color, intensity );
+                light.position.set( 0, 10, 0 );
+                scene.add(light);
+
+                // Cylinder properties
+
+                const cylProps = { transparent: false,
+                                   opacity: 0.85,
+                                   alphaTest: 0.2,
+                                   color: 0x049ef4,
+                                   specular: 0x363030,
+                                   shininess: 45,
+                                   side: THREE.DoubleSide }
+
+                const geometry = new THREE.CylinderBufferGeometry( 0.3, 0.3, 5, 32, 1, true );
+                const material = new THREE.MeshPhongMaterial( cylProps );
+                const cylinder = new THREE.Mesh( geometry, material );
+
+                // Check for device orientation - TESTING
 
                 // handle iOS orientation
 
                 function handleiOSOrientation(event) {
 
                     var compassDir = event.webkitCompassHeading;
-                    console.log(`compass heading: ${compassDir}`);
+                    if (compassDir === 0) {
+                        checkOrientation();
+                    }
+                    info.textContent = `compass heading: ${compassDir}`;
+                    offset = compassDir * (Math.PI/180);
+                    cylinder.rotation.x = Math.PI / 2;
+                    cylinder.rotation.z = -offset;
+                    cylinder.position.set( 0, -3, -3 );
+                    scene.add( cylinder );
 
                 }
 
@@ -84,38 +111,39 @@
                     
                 }
 
+                document.addEventListener("DOMContentLoaded", startup);
+
+                function checkOrientation() {
+                    const options = {
+                        once: true
+                    }
+                    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                        DeviceOrientationEvent.requestPermission()
+                        .then(permissionState => {
+                            if (permissionState === 'granted') {
+                                // info.textContent = 'iPhone';
+                                window.addEventListener('deviceorientation', handleiOSOrientation, options);
+                            }
+                        })
+                        .catch(console.error);
+                    } else {
+                        info.textContent = 'Android';
+                        window.addEventListener('deviceorientation', handleOrientation, true);
+                    }
+                }
+
                 // Controller
 
                 // controller = renderer.xr.getController( 0 );
                 // scene.add( controller );
 
-                // Directional light
-
-                const color = 0xffffff;
-                const intensity = 1;
-                const light = new THREE.DirectionalLight( color, intensity );
-                light.position.set( 0, 10, 0 );
-                scene.add(light);
-
-                // Cylinder
-
-                const cylProps = { transparent: false,
-                                   opacity: 0.85,
-                                   alphaTest: 0.2,
-                                   color: 0x049ef4,
-                                   specular: 0x363030,
-                                   shininess: 45,
-                                   side: THREE.DoubleSide }
-
-                const geometry = new THREE.CylinderBufferGeometry( 0.3, 0.3, 5, 32, 1, true );
-                const material = new THREE.MeshPhongMaterial( cylProps );
-                const cylinder = new THREE.Mesh( geometry, material );
-                cylinder.rotation.x = Math.PI / 2;
-                cylinder.rotation.z = Math.PI / 2;
-                cylinder.position.set( 0, -3, -3 )
+                
+                // cylinder.rotation.x = Math.PI / 2;
+                // cylinder.rotation.z = offset;
+                // cylinder.position.set( 0, -3, -3 );
                 // cylinder.position.set( 0, -3, -3 ).applyMatrix4( controller.matrixWorld );
                 // cylinder.quaternion.setFromRotationMatrix( controller.matrixWorld );
-                scene.add( cylinder );
+                // scene.add( cylinder );
 
                 // Window resize listener
 
