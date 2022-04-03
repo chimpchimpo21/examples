@@ -33,10 +33,17 @@
                 var p1 = [5,-3,-1.5];
                 var p2 = [-15,-3,-1.5];
                 var midpoint = [ (p1[0]+p2[0])/2, (p1[1]+p2[1])/2 ];
+                var a2 = Math.sqrt( Math.pow( ( p2[0] - midpoint[0] ), 2 ) + Math.pow( ( p2[1] - midpoint[1] ), 2) );
+                var b2 = Math.sqrt( Math.pow( ( p2[0] - my_location[0] ), 2 ) + Math.pow( ( p2[1] - my_location[1] ), 2) );
+                var c2 = Math.sqrt( Math.pow( ( midpoint[0] - my_location[0] ), 2 ) + Math.pow( ( midpoint[1] - my_location[1] ), 2) );
                 var a = Math.sqrt(Math.pow((p2[0]-p1[0]), 2)+Math.pow((p2[1]-p1[1]), 2));
                 var b = Math.sqrt(Math.pow((p2[0]-my_location[0]), 2)+Math.pow((p2[1]-my_location[1]), 2));
                 var c = Math.sqrt(Math.pow((p1[0]-my_location[0]), 2)+Math.pow((p1[1]-my_location[1]), 2));
+
+
+
                 var cos = (Math.pow(b, 2) + Math.pow(c, 2) - Math.pow(a, 2))/(2*b*c);
+                var newCos = (Math.pow(b, 2) + Math.pow(c, 2) - Math.pow(a, 2))/(2*b*c);
                 var arccos = Math.acos(cos);
 
                 // cylinder attributes
@@ -113,7 +120,7 @@
                     cylinder.position.set( (p1[0]+p2[0])/2, p1[2], (p1[1]+p2[1])/2 );
                     // cylinder.position.set( p1[0], p1[1], p1[2] );
 
-                    // cylinder.rotation.x = Math.PI / 2;
+                    cylinder.rotation.x = Math.PI / 2;
                     cylinder.lookAt(20, 0, 0);
                     // cylinder.lookAt(p1);
                     // cylinder.rotation.z = -Math.PI / 2;
