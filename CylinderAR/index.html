@@ -41,6 +41,12 @@
                 var c = Math.sqrt(Math.pow((p1[0]-my_location[0]), 2)+Math.pow((p1[1]-my_location[1]), 2));
 
 
+                var p3 = [-15, -1.5, -7];
+                var p4 = [-15, -1.5, 4];
+                var midpoint2 = [ (p3[0]+p4[0])/2, (p3[1]+p4[1])/2, (p3[2]+p4[2])/2 ];
+                var length2 = Math.sqrt( Math.pow((p4[0]-p3[0]), 2) + Math.pow((p4[2]-p3[2]), 2) );
+
+
 
                 var cos = (Math.pow(b, 2) + Math.pow(c, 2) - Math.pow(a, 2))/(2*b*c);
                 var newCos = (Math.pow(b, 2) + Math.pow(c, 2) - Math.pow(a, 2))/(2*b*c);
@@ -98,11 +104,14 @@
                                    side: THREE.DoubleSide }
                 
                 // var cylinderHeight = Math.abs(p2[0]-p1[0]);
+                var cylinderHeight = 20;
 
                 const geometry = new THREE.CylinderBufferGeometry( 0.3, 0.3, Math.abs(p2[0]-p1[0]), 32, 1, true );
-                // geometry.translate( 0, cylinderHeight/2, 0 );
+                const geometry2 = new THREE.CylinderBufferGeometry( 0.3, 0.3, length2, 32, 1, true );
+                geometry.translate( 0, cylinderHeight/2, 0 );
                 const material = new THREE.MeshPhongMaterial( cylProps );
                 const cylinder = new THREE.Mesh( geometry, material );
+                const cylinder2 = new THREE.Mesh( geometry2, material )
 
                 // Check for device orientation - TESTING
 
@@ -117,17 +126,22 @@
                     info.textContent = `compass heading: ${compassDir}`;
                     offset = compassDir * (Math.PI/180);
 
-                    cylinder.position.set( (p1[0]+p2[0])/2, p1[2], (p1[1]+p2[1])/2 );
-                    // cylinder.position.set( p1[0], p1[1], p1[2] );
+                    // cylinder.position.set( (p1[0]+p2[0])/2, p1[2], (p1[1]+p2[1])/2 );
+                    cylinder.position.set( p2[0], p2[1], p2[2]);
+                    cylinder2.position.set( midpoint2[0], midpoint2[1], midpoint2[2] );
 
-                    cylinder.rotation.x = Math.PI / 2;
-                    cylinder.lookAt(20, 0, 0);
+                    // cylinder.rotation.x = Math.PI / 2;
+                    
+
+
+                    cylinder2.rotation.x = Math.PI / 2;
                     // cylinder.lookAt(p1);
                     // cylinder.rotation.z = -Math.PI / 2;
                     // cylinder.rotation.z = -arccos;
                     // cylinder.rotation.z = -arccos;
                     
                     scene.add( cylinder );
+                    scene.add( cylinder2 );
 
                 }
                 // scene.rotation.y += -offset;
