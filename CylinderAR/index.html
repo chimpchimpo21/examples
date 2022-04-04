@@ -40,9 +40,19 @@
                 var b = Math.sqrt(Math.pow((p2[0]-my_location[0]), 2)+Math.pow((p2[1]-my_location[1]), 2));
                 var c = Math.sqrt(Math.pow((p1[0]-my_location[0]), 2)+Math.pow((p1[1]-my_location[1]), 2));
 
+                // test vectors
+                var vec1 = new THREE.Vector3( 5, -3, -1.5 );
+                var vec2 = new THREE.Vector3( -15, -3, -1.5 );
+                var vecLen = vec2.distanceTo(vec1);
+                var angle = vec1.angleTo(vec2);
+                console.log(angle, vecLen);
 
-                var p3 = [-15, -1.5, -7];
-                var p4 = [-15, -1.5, 4];
+
+                var p3 = [-15, -3, -7];
+                var p4 = [-15, -3, 4];
+                var vec3 = new THREE.Vector3( -15, -3, -7 );
+                var vec4 = new THREE.Vector3( -15, -3, 4 );
+                var vecLen2 = vec3.distanceTo(vec4);
                 var midpoint2 = [ (p3[0]+p4[0])/2, (p3[1]+p4[1])/2, (p3[2]+p4[2])/2 ];
                 var length2 = Math.sqrt( Math.pow((p4[0]-p3[0]), 2) + Math.pow((p4[2]-p3[2]), 2) );
 
@@ -102,13 +112,11 @@
                                    specular: 0x363030,
                                    shininess: 45,
                                    side: THREE.DoubleSide }
-                
-                // var cylinderHeight = Math.abs(p2[0]-p1[0]);
-                var cylinderHeight = 20;
 
-                const geometry = new THREE.CylinderBufferGeometry( 0.3, 0.3, Math.abs(p2[0]-p1[0]), 32, 1, true );
-                const geometry2 = new THREE.CylinderBufferGeometry( 0.3, 0.3, length2, 32, 1, true );
-                geometry.translate( 0, cylinderHeight/2, 0 );
+                const geometry = new THREE.CylinderBufferGeometry( 0.3, 0.3, vecLen, 32, 1, true );
+                const geometry2 = new THREE.CylinderBufferGeometry( 0.3, 0.3, vecLen2, 32, 1, true );
+                geometry.translate( 0, vecLen/2, 0 );
+                geometry2.translate( 0, vecLen2/2, 0 );
                 const material = new THREE.MeshPhongMaterial( cylProps );
                 const cylinder = new THREE.Mesh( geometry, material );
                 const cylinder2 = new THREE.Mesh( geometry2, material )
@@ -126,23 +134,43 @@
                     info.textContent = `compass heading: ${compassDir}`;
                     offset = compassDir * (Math.PI/180);
 
-                    // cylinder.position.set( (p1[0]+p2[0])/2, p1[2], (p1[1]+p2[1])/2 );
+                    // Positioning Tests
+                    // cylinder.quaternion.setFromUnitVectors(vec1.clone().normalize(), vec2.clone().normalize());
+                    // cylinder.position.copy(vec2.clone().multiplyScalar(0.5));
+
                     cylinder.position.set( p2[0], p2[1], p2[2]);
-                    cylinder2.position.set( midpoint2[0], midpoint2[1], midpoint2[2] );
+                    cylinder2.position.set( p4[0], p4[1], p4[2]);
+
+                    const axis = new THREE.Vector3( vec1.x-vec2.x, vec1.y-vec2.y, vec1.z-vec2.z ).normalize();
+                    const axis2 = new THREE.Vector3( vec3.x-vec4.x, vec3.y-vec4.y, vec3.z-vec4.z).normalize();
+
+                    const quaternion = new THREE.Quaternion();
+                    const quaternion2 = new THREE.Quaternion();
+                    const cylinderUpAxis = new THREE.Vector3( 0, 1, 0 );
+                    
+                    quaternion.setFromUnitVectors( cylinderUpAxis, axis );
+                    quaternion2.setFromUnitVectors( cylinderUpAxis, axis2 );
+                    cylinder.applyQuaternion(quaternion);
+                    cylinder2.applyQuaternion(quaternion2);
+
+
+                    // cylinder.position.set( (p1[0]+p2[0])/2, p1[2], (p1[1]+p2[1])/2 );
+                    
+                    // cylinder2.position.set( midpoint2[0], midpoint2[1], midpoint2[2] );
 
                     // cylinder.rotation.x = Math.PI / 2;
                     
 
 
-                    cylinder2.rotation.x = Math.PI / 2;
-                    // cylinder.lookAt(p1);
+                    // cylinder2.rotation.x = Math.PI / 2;
+                    // cylinder.lookAt(5, -3, -1.5);  does not point towards p1, possibly rotates cylinder barrel towards p1
                     // cylinder.rotation.z = -Math.PI / 2;
                     // cylinder.rotation.z = -arccos;
                     // cylinder.rotation.z = -arccos;
                     
                     scene.add( cylinder );
                     scene.add( cylinder2 );
-
+                    // scene.add( cylinder2 );
                 }
                 // scene.rotation.y += -offset;
                 // handle Android orientation
