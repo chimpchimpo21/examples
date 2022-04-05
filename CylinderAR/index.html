@@ -19,6 +19,8 @@
             import * as THREE from 'https://cdn.skypack.dev/three@0.128.0/build/three.module.js';
             import { ARButton} from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/webxr/ARButton.js';
 
+            // THREE.js scene variables
+
             var container, camera, scene, renderer;
 
             // testing offset variable
@@ -65,18 +67,34 @@
                 var arccos = Math.acos(cos);
 
                 // fake pipe data prep
-                // reproject
+                // reproject pipe start/end coordinates from WGS84 to Spherical Mercator
                 var firstProjection = "EPSG:3857";
                 
                 var pipe1StartCoords = proj4( firstProjection, pipes.features[0].geometry.coordinates[0] );
                 var pipe1EndCoords = proj4( firstProjection, pipes.features[0].geometry.coordinates[1] );
+                var pipe2StartCoords = proj4( firstProjection, pipes.features[1].geometry.coordinates[0] );
+                var pipe2EndCoords = proj4( firstProjection, pipes.features[1].geometry.coordinates[1] );
+
+                // Create Vector3 objects for each pipe end (have to manually add -5 meters for y-axis for now b/c pipe data does not have z-value)
+
+                var pipe1Start = new THREE.Vector3( pipe1StartCoords[0], -5, pipe1StartCoords[1] );
+                var pipe1End = new THREE.Vector3( pipe1EndCoords[0], -5, pipe1EndCoords[1] );
+                var pipe2Start = new THREE.Vector3( pipe2StartCoords[0], -5, pipe2StartCoords[1] );
+                var pipe2End = new THREE.Vector3( pipe2EndCoords[0], -5, pipe2EndCoords[1] );
+
+                // Calculate pipe lengths
+
+                var pipe1Length = pipe1Start.distanceTo( pipe1End );
+                var pipe2Length = pipe2Start.distanceTo( pipe2End );
                 // console.log(pipe1StartCoords, pipe1EndCoords);
                 // cylinder attributes
 
+                // listener for checking device orientation, should occur when "Start AR" is first tapped
                 function startup() {
                     window.addEventListener("touchend", checkOrientation, false);
                 }
-                
+
+                // scene DOM container
 
                 container = document.createElement( 'div' );
                 document.body.appendChild( container );
@@ -122,10 +140,12 @@
                                    shininess: 45,
                                    side: THREE.DoubleSide }
 
-                const geometry = new THREE.CylinderBufferGeometry( 0.3, 0.3, vecLen, 32, 1, true );
-                const geometry2 = new THREE.CylinderBufferGeometry( 0.3, 0.3, vecLen2, 32, 1, true );
-                geometry.translate( 0, vecLen/2, 0 );
-                geometry2.translate( 0, vecLen2/2, 0 );
+                // Cylinder creation
+
+                const geometry = new THREE.CylinderBufferGeometry( 0.3, 0.3, pipe1Length, 32, 1, true );
+                const geometry2 = new THREE.CylinderBufferGeometry( 0.3, 0.3, pipe2Length, 32, 1, true );
+                geometry.translate( 0, pipe1Length/2, 0 );
+                geometry2.translate( 0, pipe2Length/2, 0 );
                 const material = new THREE.MeshPhongMaterial( cylProps );
                 const cylinder = new THREE.Mesh( geometry, material );
                 const cylinder2 = new THREE.Mesh( geometry2, material )
@@ -143,15 +163,13 @@
                     info.textContent = `compass heading: ${compassDir}`;
                     offset = compassDir * (Math.PI/180);
 
-                    // Positioning Tests
-                    // cylinder.quaternion.setFromUnitVectors(vec1.clone().normalize(), vec2.clone().normalize());
-                    // cylinder.position.copy(vec2.clone().multiplyScalar(0.5));
+                    // Cylinder Positioning Tests
 
-                    cylinder.position.set( p2[0], p2[1], p2[2]);
-                    cylinder2.position.set( p4[0], p4[1], p4[2]);
+                    cylinder.position.set( pipe1Start.x, pipe1Start.y, pipe1Start.z );
+                    cylinder2.position.set( pipe2Start.x, pipe2Start.y, pipe2Start.z );
 
-                    const axis = new THREE.Vector3( vec1.x-vec2.x, vec1.y-vec2.y, vec1.z-vec2.z ).normalize();
-                    const axis2 = new THREE.Vector3( vec3.x-vec4.x, vec3.y-vec4.y, vec3.z-vec4.z).normalize();
+                    const axis = new THREE.Vector3( pipe1Start.x-pipe1End.x, pipe1Start.y-pipe1End.y, pipe1Start.z-pipe1End.z ).normalize();
+                    const axis2 = new THREE.Vector3( pipe2Start.x-pipe2End.x, pipe2Start.y-pipe2End.y, pipe2Start.z-pipe2End.z ).normalize();
 
                     const quaternion = new THREE.Quaternion();
                     const quaternion2 = new THREE.Quaternion();
@@ -161,15 +179,6 @@
                     quaternion2.setFromUnitVectors( cylinderUpAxis, axis2 );
                     cylinder.applyQuaternion(quaternion);
                     cylinder2.applyQuaternion(quaternion2);
-
-
-                    // cylinder.position.set( (p1[0]+p2[0])/2, p1[2], (p1[1]+p2[1])/2 );
-                    
-                    // cylinder2.position.set( midpoint2[0], midpoint2[1], midpoint2[2] );
-
-                    // cylinder.rotation.x = Math.PI / 2;
-                    
-
 
                     // cylinder2.rotation.x = Math.PI / 2;
                     // cylinder.lookAt(5, -3, -1.5);  does not point towards p1, possibly rotates cylinder barrel towards p1
@@ -181,7 +190,7 @@
                     scene.add( cylinder2 );
                     // scene.add( cylinder2 );
                 }
-                // scene.rotation.y += -offset;
+                scene.rotation.y += -offset;
                 // handle Android orientation
 
                 function handleOrientation(event) {
@@ -218,14 +227,6 @@
 
                 // controller = renderer.xr.getController( 0 );
                 // scene.add( controller );
-
-                
-                // cylinder.rotation.x = Math.PI / 2;
-                // cylinder.rotation.z = offset;
-                // cylinder.position.set( 0, -3, -3 );
-                // cylinder.position.set( 0, -3, -3 ).applyMatrix4( controller.matrixWorld );
-                // cylinder.quaternion.setFromRotationMatrix( controller.matrixWorld );
-                // scene.add( cylinder );
 
                 // Window resize listener
 
