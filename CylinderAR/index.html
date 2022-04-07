@@ -121,11 +121,6 @@
                 var pipe2EndCoords = proj4( firstProjection, pipes.features[1].geometry.coordinates[1] );
                 // create Vector3 from pipe coordinates
 
-                // listener for checking device orientation, should occur when "Start AR" is first tapped
-                function startup() {
-                    window.addEventListener("touchend", checkOrientation, false);
-                }
-
                 // scene DOM container
 
                 container = document.createElement( 'div' );
