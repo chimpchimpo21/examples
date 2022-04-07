@@ -12,7 +12,32 @@
 
         <script type="module">
 
+            const once = {
+                once: true
+            }
+
+            // info text reference
             const info = document.getElementById("info");
+
+            // geolocation options
+            const options = {
+                enableHighAccuracy: true,
+                maximumAge: 0
+            };
+
+            function success(pos) {
+                var crd = pos.coords;
+                init(crd);
+                animate();
+            }
+
+            function error(err) {
+                info.textContent = `Error(${err.code}): ${err.message}`;
+            }
+
+            // get device location
+
+            navigator.geolocation.getCurrentPosition(success, error, [options])
 
             //THREE.js scripts imports
             
@@ -27,48 +52,53 @@
 
             var offset;
 
-            init();
-            animate();
+            // init(crd);
+            // animate();
 
-            function init() {
+            function init(crd) {
+
+                function startup() {
+                    window.addEventListener("pointerup", checkOrientation, once);
+                }
                 
                 // geometry attributes
-                var my_location = [0, 0, 0];
-                var p1 = [5,-3,-1.5];
-                var p2 = [-15,-3,-1.5];
-                var midpoint = [ (p1[0]+p2[0])/2, (p1[1]+p2[1])/2 ];
-                var a2 = Math.sqrt( Math.pow( ( p2[0] - midpoint[0] ), 2 ) + Math.pow( ( p2[1] - midpoint[1] ), 2) );
-                var b2 = Math.sqrt( Math.pow( ( p2[0] - my_location[0] ), 2 ) + Math.pow( ( p2[1] - my_location[1] ), 2) );
-                var c2 = Math.sqrt( Math.pow( ( midpoint[0] - my_location[0] ), 2 ) + Math.pow( ( midpoint[1] - my_location[1] ), 2) );
-                var a = Math.sqrt(Math.pow((p2[0]-p1[0]), 2)+Math.pow((p2[1]-p1[1]), 2));
-                var b = Math.sqrt(Math.pow((p2[0]-my_location[0]), 2)+Math.pow((p2[1]-my_location[1]), 2));
-                var c = Math.sqrt(Math.pow((p1[0]-my_location[0]), 2)+Math.pow((p1[1]-my_location[1]), 2));
+                // var my_location = [0, 0, 0];
+                // var p1 = [5,-3,-1.5];
+                // var p2 = [-15,-3,-1.5];
+                // var midpoint = [ (p1[0]+p2[0])/2, (p1[1]+p2[1])/2 ];
+                // var a2 = Math.sqrt( Math.pow( ( p2[0] - midpoint[0] ), 2 ) + Math.pow( ( p2[1] - midpoint[1] ), 2) );
+                // var b2 = Math.sqrt( Math.pow( ( p2[0] - my_location[0] ), 2 ) + Math.pow( ( p2[1] - my_location[1] ), 2) );
+                // var c2 = Math.sqrt( Math.pow( ( midpoint[0] - my_location[0] ), 2 ) + Math.pow( ( midpoint[1] - my_location[1] ), 2) );
+                // var a = Math.sqrt(Math.pow((p2[0]-p1[0]), 2)+Math.pow((p2[1]-p1[1]), 2));
+                // var b = Math.sqrt(Math.pow((p2[0]-my_location[0]), 2)+Math.pow((p2[1]-my_location[1]), 2));
+                // var c = Math.sqrt(Math.pow((p1[0]-my_location[0]), 2)+Math.pow((p1[1]-my_location[1]), 2));
 
-                // test vectors
-                var vec1 = new THREE.Vector3( 5, -3, -1.5 );
-                var vec2 = new THREE.Vector3( -15, -3, -1.5 );
-                var vecLen = vec2.distanceTo(vec1);
-                var angle = vec1.angleTo(vec2);
-                console.log(angle, vecLen);
-
-
-                var p3 = [-15, -3, -7];
-                var p4 = [-15, -3, 4];
-                var vec3 = new THREE.Vector3( -15, -3, -7 );
-                var vec4 = new THREE.Vector3( -15, -3, 4 );
-                var vecLen2 = vec3.distanceTo(vec4);
-                var midpoint2 = [ (p3[0]+p4[0])/2, (p3[1]+p4[1])/2, (p3[2]+p4[2])/2 ];
-                var length2 = Math.sqrt( Math.pow((p4[0]-p3[0]), 2) + Math.pow((p4[2]-p3[2]), 2) );
+                // // test vectors
+                // var vec1 = new THREE.Vector3( 5, -3, -1.5 );
+                // var vec2 = new THREE.Vector3( -15, -3, -1.5 );
+                // var vecLen = vec2.distanceTo(vec1);
+                // var angle = vec1.angleTo(vec2);
+                // // console.log(angle, vecLen);
 
 
+                // var p3 = [-15, -3, -7];
+                // var p4 = [-15, -3, 4];
+                // var vec3 = new THREE.Vector3( -15, -3, -7 );
+                // var vec4 = new THREE.Vector3( -15, -3, 4 );
+                // var vecLen2 = vec3.distanceTo(vec4);
+                // var midpoint2 = [ (p3[0]+p4[0])/2, (p3[1]+p4[1])/2, (p3[2]+p4[2])/2 ];
+                // var length2 = Math.sqrt( Math.pow((p4[0]-p3[0]), 2) + Math.pow((p4[2]-p3[2]), 2) );
 
-                var cos = (Math.pow(b, 2) + Math.pow(c, 2) - Math.pow(a, 2))/(2*b*c);
-                var newCos = (Math.pow(b, 2) + Math.pow(c, 2) - Math.pow(a, 2))/(2*b*c);
-                var arccos = Math.acos(cos);
+
+
+                // var cos = (Math.pow(b, 2) + Math.pow(c, 2) - Math.pow(a, 2))/(2*b*c);
+                // var newCos = (Math.pow(b, 2) + Math.pow(c, 2) - Math.pow(a, 2))/(2*b*c);
+                // var arccos = Math.acos(cos);
 
                 // fake pipe data prep
                 // reproject pipe start/end coordinates from WGS84 to Spherical Mercator
                 var firstProjection = "EPSG:3857";
+                info.textContent = "EPSG: 3857";
                 
                 var pipe1StartCoords = proj4( firstProjection, pipes.features[0].geometry.coordinates[0] );
                 var pipe1EndCoords = proj4( firstProjection, pipes.features[0].geometry.coordinates[1] );
@@ -87,14 +117,41 @@
                 var pipe1Length = pipe1Start.distanceTo( pipe1End );
                 var pipe2Length = pipe2Start.distanceTo( pipe2End );
                 // console.log(pipe1StartCoords, pipe1EndCoords);
-                // cylinder attributes
+                var pipe2StartCoords = proj4( firstProjection, pipes.features[1].geometry.coordinates[0] );
+                var pipe2EndCoords = proj4( firstProjection, pipes.features[1].geometry.coordinates[1] );
+                // create Vector3 from pipe coordinates
 
+<<<<<<< Updated upstream
                 // listener for checking device orientation, should occur when "Start AR" is first tapped
                 function startup() {
                     window.addEventListener("touchend", checkOrientation, false);
                 }
 
                 // scene DOM container
+=======
+                var pipe1Start = new THREE.Vector3( pipe1StartCoords[0], -5, pipe1StartCoords[1] );
+                var pipe1End = new THREE.Vector3( pipe1EndCoords[0], -5, pipe1EndCoords[1] );
+
+                var pipe2Start = new THREE.Vector3( pipe2StartCoords[0], -5, pipe2StartCoords[1] );
+                var pipe2End = new THREE.Vector3( pipe2EndCoords[0] , -5, pipe2EndCoords[1] );
+
+                // pipe length
+                var pipeLength = pipe1Start.distanceTo(pipe1End);
+                var pipe2Length = pipe2Start.distanceTo(pipe2End);
+
+                // location prep
+                var userLocation = proj4( firstProjection, [crd.longitude, crd.latitude] );
+                console.log(userLocation);
+                var userVector = new THREE.Vector3( userLocation[0], 0, userLocation[1] );
+
+                // scaled to local world pipe vector
+                var pipeScaledStart = new THREE.Vector3( pipe1Start.x - userVector.x, pipe1Start.y, userVector.z - pipe1Start.z );
+                var pipeScaledEnd = new THREE.Vector3( pipe1End.x - userVector.x, pipe1End.y, userVector.z - pipe1End.z );
+
+                var pipe2ScaledStart = new THREE.Vector3( pipe2Start.x - userVector.x, pipe2Start.y, userVector.z - pipe2Start.z );
+                var pipe2ScaledEnd = new THREE.Vector3( pipe2End.x - userVector.x, pipe2End.y, userVector.z - pipe2End.z );
+                
+>>>>>>> Stashed changes
 
                 container = document.createElement( 'div' );
                 document.body.appendChild( container );
@@ -105,7 +162,12 @@
                 
                 // Camera
 
+<<<<<<< Updated upstream
                 camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 250 );
+=======
+                camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 1000 );
+                console.log(camera.position);
+>>>>>>> Stashed changes
                 
                 // Renderer
 
@@ -140,6 +202,7 @@
                                    shininess: 45,
                                    side: THREE.DoubleSide }
 
+<<<<<<< Updated upstream
                 // Cylinder creation
 
                 const geometry = new THREE.CylinderBufferGeometry( 0.3, 0.3, pipe1Length, 32, 1, true );
@@ -149,6 +212,43 @@
                 const material = new THREE.MeshPhongMaterial( cylProps );
                 const cylinder = new THREE.Mesh( geometry, material );
                 const cylinder2 = new THREE.Mesh( geometry2, material )
+=======
+                // const geometry = new THREE.CylinderBufferGeometry( 0.3, 0.3, vecLen, 32, 1, true );
+                // const geometry2 = new THREE.CylinderBufferGeometry( 0.3, 0.3, vecLen2, 32, 1, true );
+                // geometry.translate( 0, vecLen/2, 0 );
+                // geometry2.translate( 0, vecLen2/2, 0 );
+                // const material = new THREE.MeshPhongMaterial( cylProps );
+                // const cylinder = new THREE.Mesh( geometry, material );
+                // const cylinder2 = new THREE.Mesh( geometry2, material )
+
+                // pipe rendering testing
+                // const geometry = new THREE.CylinderBufferGeometry( 0.3, 0.3, pipeLength, 32, 1, true );
+                // const geometry2 = new THREE.CylinderBufferGeometry( 0.3, 0.3, pipe2Length, 32, 1, true );
+                // geometry.translate( 0, pipeLength/2, 0 );
+                // geometry2.translate( 0, pipe2Length/2, 0 );
+                // const material = new THREE.MeshPhongMaterial( cylProps );
+                // const pipe = new THREE.Mesh( geometry, material );
+                // const pipe2 = new THREE.Mesh( geometry2, material );
+
+                // pipe.position.set( pipeScaledStart.x, pipeScaledStart.y, pipeScaledStart.z );
+                // pipe2.position.set( pipe2ScaledStart.x, pipe2ScaledStart.y, pipe2ScaledStart.z );
+                
+                // const axis = new THREE.Vector3( pipeScaledEnd.x-pipeScaledStart.x, pipeScaledEnd.y-pipeScaledStart.y, pipeScaledEnd.z-pipeScaledStart.z ).normalize();
+                // const axis2 = new THREE.Vector3( pipe2ScaledEnd.x-pipe2ScaledStart.x, pipe2ScaledEnd.y-pipe2ScaledStart.y, pipe2ScaledEnd.z-pipe2ScaledStart.z ).normalize();
+
+                // const quaternion = new THREE.Quaternion();
+                // const cylinderUpAxis = new THREE.Vector3( 0, 1, 0 );
+
+                // quaternion.setFromUnitVectors( cylinderUpAxis, axis );
+                // pipe.applyQuaternion(quaternion);
+
+                // scene.add( pipe );
+
+                // quaternion.setFromUnitVectors( cylinderUpAxis, axis2 );
+                // pipe2.applyQuaternion(quaternion);
+
+                // scene.add( pipe2 );
+>>>>>>> Stashed changes
 
                 // Check for device orientation - TESTING
 
@@ -163,6 +263,7 @@
                     info.textContent = `compass heading: ${compassDir}`;
                     offset = compassDir * (Math.PI/180);
 
+<<<<<<< Updated upstream
                     // Cylinder Positioning Tests
 
                     cylinder.position.set( pipe1Start.x, pipe1Start.y, pipe1Start.z );
@@ -170,25 +271,70 @@
 
                     const axis = new THREE.Vector3( pipe1Start.x-pipe1End.x, pipe1Start.y-pipe1End.y, pipe1Start.z-pipe1End.z ).normalize();
                     const axis2 = new THREE.Vector3( pipe2Start.x-pipe2End.x, pipe2Start.y-pipe2End.y, pipe2Start.z-pipe2End.z ).normalize();
+=======
+                    // Pipe positioning tests
+                    // pipe.position.set( pipe1End.x, pipe1End.y, pipe1End.z );
+                    // console.log(pipe.position);
+
+                    const geometry = new THREE.CylinderBufferGeometry( 0.3, 0.3, pipeLength, 32, 1, true );
+                    const geometry2 = new THREE.CylinderBufferGeometry( 0.3, 0.3, pipe2Length, 32, 1, true );
+                    geometry.translate( 0, pipeLength/2, 0 );
+                    geometry2.translate( 0, pipe2Length/2, 0 );
+                    const material = new THREE.MeshPhongMaterial( cylProps );
+                    const pipe = new THREE.Mesh( geometry, material );
+                    const pipe2 = new THREE.Mesh( geometry2, material );
+
+                    pipe.position.set( pipeScaledStart.x, pipeScaledStart.y, pipeScaledStart.z );
+                    pipe2.position.set( pipe2ScaledStart.x, pipe2ScaledStart.y, pipe2ScaledStart.z );
+                    
+                    const axis = new THREE.Vector3( pipeScaledEnd.x-pipeScaledStart.x, pipeScaledEnd.y-pipeScaledStart.y, pipeScaledEnd.z-pipeScaledStart.z ).normalize();
+                    const axis2 = new THREE.Vector3( pipe2ScaledEnd.x-pipe2ScaledStart.x, pipe2ScaledEnd.y-pipe2ScaledStart.y, pipe2ScaledEnd.z-pipe2ScaledStart.z ).normalize();
+>>>>>>> Stashed changes
 
                     const quaternion = new THREE.Quaternion();
-                    const quaternion2 = new THREE.Quaternion();
                     const cylinderUpAxis = new THREE.Vector3( 0, 1, 0 );
-                    
-                    quaternion.setFromUnitVectors( cylinderUpAxis, axis );
-                    quaternion2.setFromUnitVectors( cylinderUpAxis, axis2 );
-                    cylinder.applyQuaternion(quaternion);
-                    cylinder2.applyQuaternion(quaternion2);
 
+                    quaternion.setFromUnitVectors( cylinderUpAxis, axis );
+                    pipe.applyQuaternion(quaternion);
+
+<<<<<<< Updated upstream
                     // cylinder2.rotation.x = Math.PI / 2;
                     // cylinder.lookAt(5, -3, -1.5);  does not point towards p1, possibly rotates cylinder barrel towards p1
                     // cylinder.rotation.z = -Math.PI / 2;
                     // cylinder.rotation.z = -arccos;
                     // cylinder.rotation.z = -arccos;
+=======
+                    scene.add( pipe );
+
+                    quaternion.setFromUnitVectors( cylinderUpAxis, axis2 );
+                    pipe2.applyQuaternion(quaternion);
+
+                    scene.add( pipe2 );
                     
-                    scene.add( cylinder );
-                    scene.add( cylinder2 );
+
+                    // Positioning Tests
+
+                    // cylinder.position.set( p2[0], p2[1], p2[2]);
+                    // cylinder2.position.set( p4[0], p4[1], p4[2]);
+
+                    // const axis = new THREE.Vector3( vec1.x-vec2.x, vec1.y-vec2.y, vec1.z-vec2.z ).normalize();
+                    // const axis2 = new THREE.Vector3( vec3.x-vec4.x, vec3.y-vec4.y, vec3.z-vec4.z).normalize();
+
+                    // const quaternion = new THREE.Quaternion();
+                    // // const quaternion2 = new THREE.Quaternion();
+                    // const cylinderUpAxis = new THREE.Vector3( 0, 1, 0 );
+>>>>>>> Stashed changes
+                    
+                    // quaternion.setFromUnitVectors( cylinderUpAxis, axis );
+                    // // quaternion2.setFromUnitVectors( cylinderUpAxis, axis2 );
+                    // // cylinder.applyQuaternion(quaternion);
+                    // // cylinder2.applyQuaternion(quaternion2);
+
+                    // pipe.applyQuaternion(quaternion);
+                    
+                    // scene.add( cylinder );
                     // scene.add( cylinder2 );
+                    scene.rotation.y = offset;
                 }
                 scene.rotation.y += -offset;
                 // handle Android orientation
@@ -202,24 +348,22 @@
                     
                 }
 
-                document.addEventListener("DOMContentLoaded", startup);
+                document.addEventListener("pointerup", startup, once);
 
                 function checkOrientation() {
-                    const options = {
-                        once: true
-                    }
+
                     if (typeof DeviceOrientationEvent.requestPermission === 'function') {
                         DeviceOrientationEvent.requestPermission()
                         .then(permissionState => {
                             if (permissionState === 'granted') {
                                 // info.textContent = 'iPhone';
-                                window.addEventListener('deviceorientation', handleiOSOrientation, options);
+                                window.addEventListener('deviceorientation', handleiOSOrientation, once);
                             }
                         })
                         .catch(console.error);
                     } else {
                         info.textContent = 'Android';
-                        window.addEventListener('deviceorientation', handleOrientation, true);
+                        window.addEventListener('deviceorientation', handleOrientation, once);
                     }
                 }
 
