@@ -121,37 +121,12 @@
                 var pipe2EndCoords = proj4( firstProjection, pipes.features[1].geometry.coordinates[1] );
                 // create Vector3 from pipe coordinates
 
-<<<<<<< Updated upstream
                 // listener for checking device orientation, should occur when "Start AR" is first tapped
                 function startup() {
                     window.addEventListener("touchend", checkOrientation, false);
                 }
 
                 // scene DOM container
-=======
-                var pipe1Start = new THREE.Vector3( pipe1StartCoords[0], -5, pipe1StartCoords[1] );
-                var pipe1End = new THREE.Vector3( pipe1EndCoords[0], -5, pipe1EndCoords[1] );
-
-                var pipe2Start = new THREE.Vector3( pipe2StartCoords[0], -5, pipe2StartCoords[1] );
-                var pipe2End = new THREE.Vector3( pipe2EndCoords[0] , -5, pipe2EndCoords[1] );
-
-                // pipe length
-                var pipeLength = pipe1Start.distanceTo(pipe1End);
-                var pipe2Length = pipe2Start.distanceTo(pipe2End);
-
-                // location prep
-                var userLocation = proj4( firstProjection, [crd.longitude, crd.latitude] );
-                console.log(userLocation);
-                var userVector = new THREE.Vector3( userLocation[0], 0, userLocation[1] );
-
-                // scaled to local world pipe vector
-                var pipeScaledStart = new THREE.Vector3( pipe1Start.x - userVector.x, pipe1Start.y, userVector.z - pipe1Start.z );
-                var pipeScaledEnd = new THREE.Vector3( pipe1End.x - userVector.x, pipe1End.y, userVector.z - pipe1End.z );
-
-                var pipe2ScaledStart = new THREE.Vector3( pipe2Start.x - userVector.x, pipe2Start.y, userVector.z - pipe2Start.z );
-                var pipe2ScaledEnd = new THREE.Vector3( pipe2End.x - userVector.x, pipe2End.y, userVector.z - pipe2End.z );
-                
->>>>>>> Stashed changes
 
                 container = document.createElement( 'div' );
                 document.body.appendChild( container );
@@ -162,12 +137,7 @@
                 
                 // Camera
 
-<<<<<<< Updated upstream
                 camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 250 );
-=======
-                camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 1000 );
-                console.log(camera.position);
->>>>>>> Stashed changes
                 
                 // Renderer
 
@@ -202,17 +172,6 @@
                                    shininess: 45,
                                    side: THREE.DoubleSide }
 
-<<<<<<< Updated upstream
-                // Cylinder creation
-
-                const geometry = new THREE.CylinderBufferGeometry( 0.3, 0.3, pipe1Length, 32, 1, true );
-                const geometry2 = new THREE.CylinderBufferGeometry( 0.3, 0.3, pipe2Length, 32, 1, true );
-                geometry.translate( 0, pipe1Length/2, 0 );
-                geometry2.translate( 0, pipe2Length/2, 0 );
-                const material = new THREE.MeshPhongMaterial( cylProps );
-                const cylinder = new THREE.Mesh( geometry, material );
-                const cylinder2 = new THREE.Mesh( geometry2, material )
-=======
                 // const geometry = new THREE.CylinderBufferGeometry( 0.3, 0.3, vecLen, 32, 1, true );
                 // const geometry2 = new THREE.CylinderBufferGeometry( 0.3, 0.3, vecLen2, 32, 1, true );
                 // geometry.translate( 0, vecLen/2, 0 );
@@ -248,7 +207,6 @@
                 // pipe2.applyQuaternion(quaternion);
 
                 // scene.add( pipe2 );
->>>>>>> Stashed changes
 
                 // Check for device orientation - TESTING
 
@@ -263,15 +221,6 @@
                     info.textContent = `compass heading: ${compassDir}`;
                     offset = compassDir * (Math.PI/180);
 
-<<<<<<< Updated upstream
-                    // Cylinder Positioning Tests
-
-                    cylinder.position.set( pipe1Start.x, pipe1Start.y, pipe1Start.z );
-                    cylinder2.position.set( pipe2Start.x, pipe2Start.y, pipe2Start.z );
-
-                    const axis = new THREE.Vector3( pipe1Start.x-pipe1End.x, pipe1Start.y-pipe1End.y, pipe1Start.z-pipe1End.z ).normalize();
-                    const axis2 = new THREE.Vector3( pipe2Start.x-pipe2End.x, pipe2Start.y-pipe2End.y, pipe2Start.z-pipe2End.z ).normalize();
-=======
                     // Pipe positioning tests
                     // pipe.position.set( pipe1End.x, pipe1End.y, pipe1End.z );
                     // console.log(pipe.position);
@@ -289,7 +238,6 @@
                     
                     const axis = new THREE.Vector3( pipeScaledEnd.x-pipeScaledStart.x, pipeScaledEnd.y-pipeScaledStart.y, pipeScaledEnd.z-pipeScaledStart.z ).normalize();
                     const axis2 = new THREE.Vector3( pipe2ScaledEnd.x-pipe2ScaledStart.x, pipe2ScaledEnd.y-pipe2ScaledStart.y, pipe2ScaledEnd.z-pipe2ScaledStart.z ).normalize();
->>>>>>> Stashed changes
 
                     const quaternion = new THREE.Quaternion();
                     const cylinderUpAxis = new THREE.Vector3( 0, 1, 0 );
@@ -297,13 +245,6 @@
                     quaternion.setFromUnitVectors( cylinderUpAxis, axis );
                     pipe.applyQuaternion(quaternion);
 
-<<<<<<< Updated upstream
-                    // cylinder2.rotation.x = Math.PI / 2;
-                    // cylinder.lookAt(5, -3, -1.5);  does not point towards p1, possibly rotates cylinder barrel towards p1
-                    // cylinder.rotation.z = -Math.PI / 2;
-                    // cylinder.rotation.z = -arccos;
-                    // cylinder.rotation.z = -arccos;
-=======
                     scene.add( pipe );
 
                     quaternion.setFromUnitVectors( cylinderUpAxis, axis2 );
@@ -323,7 +264,6 @@
                     // const quaternion = new THREE.Quaternion();
                     // // const quaternion2 = new THREE.Quaternion();
                     // const cylinderUpAxis = new THREE.Vector3( 0, 1, 0 );
->>>>>>> Stashed changes
                     
                     // quaternion.setFromUnitVectors( cylinderUpAxis, axis );
                     // // quaternion2.setFromUnitVectors( cylinderUpAxis, axis2 );
