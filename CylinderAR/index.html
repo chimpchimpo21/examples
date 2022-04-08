@@ -27,6 +27,7 @@
 
             function success(pos) {
                 var crd = pos.coords;
+                // console.log(crd);
                 init(crd);
                 animate();
             }
@@ -98,7 +99,12 @@
                 // fake pipe data prep
                 // reproject pipe start/end coordinates from WGS84 to Spherical Mercator
                 var firstProjection = "EPSG:3857";
-                info.textContent = "EPSG: 3857";
+                // info.textContent = "EPSG: 3857";
+
+                // reproject and calculate user's location vector:
+                var userXY = proj4( firstProjection, [crd.longitude, crd.latitude]);
+                var user = new THREE.Vector3( userXY[0], 0, userXY[1] );
+                console.log(user);
                 
                 var pipe1StartCoords = proj4( firstProjection, pipes.features[0].geometry.coordinates[0] );
                 var pipe1EndCoords = proj4( firstProjection, pipes.features[0].geometry.coordinates[1] );
@@ -111,16 +117,21 @@
                 var pipe1End = new THREE.Vector3( pipe1EndCoords[0], -5, pipe1EndCoords[1] );
                 var pipe2Start = new THREE.Vector3( pipe2StartCoords[0], -5, pipe2StartCoords[1] );
                 var pipe2End = new THREE.Vector3( pipe2EndCoords[0], -5, pipe2EndCoords[1] );
+                console.log(pipe1Start, pipe1End, pipe2Start, pipe2End);
 
                 // Calculate pipe lengths
 
                 var pipe1Length = pipe1Start.distanceTo( pipe1End );
                 var pipe2Length = pipe2Start.distanceTo( pipe2End );
-                // console.log(pipe1StartCoords, pipe1EndCoords);
-                var pipe2StartCoords = proj4( firstProjection, pipes.features[1].geometry.coordinates[0] );
-                var pipe2EndCoords = proj4( firstProjection, pipes.features[1].geometry.coordinates[1] );
-                // create Vector3 from pipe coordinates
+                console.log(pipe1Length, pipe2Length);
 
+                // calculate scaled pipe coordinates based on user location to render pipes in scene world coordinates
+                var pipeScaledStart = new THREE.Vector3( pipe1Start.x - user.x, pipe1Start.y, user.z - pipe1Start.z ); 
+                var pipeScaledEnd = new THREE.Vector3( pipe1End.x - user.x, pipe1End.y, user.z - pipe1End.z);
+
+                var pipe2ScaledStart = new THREE.Vector3( pipe2Start.x - user.x, pipe2Start.y, user.z - pipe2Start.z );
+                var pipe2ScaledEnd = new THREE.Vector3( pipe2End.x - user.x, pipe2End.y, user.z - pipe2End.z );
+                console.log(pipeScaledStart, pipeScaledEnd, pipe2ScaledStart, pipe2ScaledEnd);
                 // scene DOM container
 
                 container = document.createElement( 'div' );
@@ -132,7 +143,7 @@
                 
                 // Camera
 
-                camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 250 );
+                camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 1000 );
                 
                 // Renderer
 
@@ -220,9 +231,9 @@
                     // pipe.position.set( pipe1End.x, pipe1End.y, pipe1End.z );
                     // console.log(pipe.position);
 
-                    const geometry = new THREE.CylinderBufferGeometry( 0.3, 0.3, pipeLength, 32, 1, true );
+                    const geometry = new THREE.CylinderBufferGeometry( 0.3, 0.3, pipe1Length, 32, 1, true );
                     const geometry2 = new THREE.CylinderBufferGeometry( 0.3, 0.3, pipe2Length, 32, 1, true );
-                    geometry.translate( 0, pipeLength/2, 0 );
+                    geometry.translate( 0, pipe1Length/2, 0 );
                     geometry2.translate( 0, pipe2Length/2, 0 );
                     const material = new THREE.MeshPhongMaterial( cylProps );
                     const pipe = new THREE.Mesh( geometry, material );
